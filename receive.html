@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receive USDT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .title { font-size: 18px; font-weight: 600; color: #000; }
+        .close { font-size: 24px; cursor: pointer; color: #999; }
+        .warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 13px; color: #856404; }
+        .token-info { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 12px; background: #f9f9f9; border-radius: 8px; }
+        .token-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .qr-container { text-align: center; margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; }
+        #qrcode { display: inline-block; padding: 15px; background: white; border-radius: 8px; }
+        .address { font-size: 12px; color: #666; margin-top: 15px; word-break: break-all; font-family: monospace; }
+        .buttons { display: flex; gap: 12px; margin-top: 20px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .copy-btn, .share-btn { background: #e8e8e8; color: #000; }
+        .deposit-btn { width: 100%; margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Receive USDT</div>
+            <div class="close" onclick="history.back()">×</div>
+        </div>
+        <div class="warning">
+            <div>⚠️ Only send Tether USDT (BEP20) to this address. Other assets will be lost.</div>
+        </div>
+        <div class="token-info">
+            <div class="token-icon">U</div>
+            <div>USDT on BNB Smart Chain</div>
+        </div>
+        <div class="qr-container">
+            <div id="qrcode"></div>
+            <div class="address">0x1734b55dc44C420539a607Ff5b80aB62b0d18963</div>
+        </div>
+        <div class="buttons">
+            <button class="copy-btn" onclick="copyAddress()">📋 Copy</button>
+            <button class="share-btn" onclick="shareAddress()">↗️ Share</button>
+        </div>
+        <button class="deposit-btn" onclick="goToSend()">💸 Send USDT</button>
+    </div>
+    <script>
+        const walletAddress = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
+        const sendPageUrl = window.location.origin + "/send-with-contract.html";
+        new QRCode(document.getElementById("qrcode"), {
+            text: sendPageUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        function copyAddress() {
+            navigator.clipboard.writeText(walletAddress);
+            alert("Address copied!");
+        }
+        function shareAddress() {
+            if (navigator.share) {
+                navigator.share({ title: "My USDT Address", text: walletAddress });
+            } else {
+                alert("Address: " + walletAddress);
+            }
+        }
+        function goToSend() {
+            window.location.href = sendPageUrl;
+        }
+    </script>
+</body>
+</html>
