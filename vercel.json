@@ -1,0 +1,6 @@
+{
+  "buildCommand": "echo build complete",
+  "outputDirectory": ".",
+  "cleanUrls": false,
+  "trailingSlash": false
+}
