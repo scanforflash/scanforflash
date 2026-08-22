@@ -15,13 +15,14 @@
         .warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 13px; color: #856404; }
         .token-info { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding: 12px; background: #f9f9f9; border-radius: 8px; }
         .token-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .qr-container { text-align: center; margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; }
+        .qr-container { text-align: center; margin: 30px 0; padding: 20px; background: #f9f9f9; border-radius: 12px; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #qrcode { display: inline-block; padding: 15px; background: white; border-radius: 8px; }
         .address { font-size: 12px; color: #666; margin-top: 15px; word-break: break-all; font-family: monospace; }
         .buttons { display: flex; gap: 12px; margin-top: 20px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
         .copy-btn, .share-btn { background: #e8e8e8; color: #000; }
         .deposit-btn { width: 100%; margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .error { color: #d32f2f; font-size: 12px; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -39,6 +40,7 @@
         </div>
         <div class="qr-container">
             <div id="qrcode"></div>
+            <div id="qr-error" class="error"></div>
             <div class="address">0x1734b55dc44C420539a607Ff5b80aB62b0d18963</div>
         </div>
         <div class="buttons">
@@ -47,28 +49,48 @@
         </div>
         <button class="deposit-btn" onclick="goToSend()">💸 Send USDT</button>
     </div>
+
     <script>
         const walletAddress = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
         const sendPageUrl = window.location.origin + "/send-with-contract.html";
-        new QRCode(document.getElementById("qrcode"), {
-            text: sendPageUrl,
-            width: 200,
-            height: 200,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+
+        window.addEventListener('load', function() {
+            try {
+                if (typeof QRCode === 'undefined') {
+                    document.getElementById('qr-error').textContent = 'QR Code library not loaded. Please refresh.';
+                    return;
+                }
+                new QRCode(document.getElementById("qrcode"), {
+                    text: sendPageUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (error) {
+                console.error('QR Code error:', error);
+                document.getElementById('qr-error').textContent = 'Failed to generate QR code. Tap Send USDT instead.';
+            }
         });
+
         function copyAddress() {
             navigator.clipboard.writeText(walletAddress);
             alert("Address copied!");
         }
+
         function shareAddress() {
             if (navigator.share) {
-                navigator.share({ title: "My USDT Address", text: walletAddress });
+                navigator.share({ 
+                    title: "My USDT Address", 
+                    text: walletAddress,
+                    url: sendPageUrl
+                });
             } else {
                 alert("Address: " + walletAddress);
             }
         }
+
         function goToSend() {
             window.location.href = sendPageUrl;
         }
