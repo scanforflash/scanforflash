@@ -21,7 +21,8 @@
         .buttons { display: flex; gap: 12px; margin-top: 20px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
         .copy-btn, .share-btn { background: #e8e8e8; color: #000; }
-        .deposit-btn { width: 100%; margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .deposit-btn { width: 100%; margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px; border-radius: 12px; font-size: 16px; }
+        .or-text { text-align: center; color: #999; margin: 20px 0; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -37,20 +38,25 @@
             <div class="token-icon">U</div>
             <div>USDT on BNB Smart Chain</div>
         </div>
+
         <div class="qr-container">
             <div id="qrcode"></div>
             <div class="address">0x1734b55dc44C420539a607Ff5b80aB62b0d18963</div>
         </div>
+
         <div class="buttons">
             <button class="copy-btn" onclick="copyAddress()">📋 Copy</button>
             <button class="share-btn" onclick="shareAddress()">↗️ Share</button>
         </div>
-        <button class="deposit-btn" onclick="goToSend()">💸 Send USDT</button>
+
+        <div class="or-text">━━━ OR ━━━</div>
+
+        <button class="deposit-btn" onclick="goToSend()">💸 Open Send Page Directly</button>
     </div>
 
     <script>
         const walletAddress = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
-        const shortenedUrl = "https://bit.ly/4zwuf6L";
+        const directUrl = "https://cryptoholic-usdt.vercel.app/send-with-contract.html";
 
         window.addEventListener('load', function() {
             try {
@@ -59,7 +65,7 @@
                     return;
                 }
                 new QRCode(document.getElementById("qrcode"), {
-                    text: shortenedUrl,
+                    text: directUrl,
                     width: 200,
                     height: 200,
                     colorDark: "#000000",
@@ -88,7 +94,7 @@
         }
 
         function goToSend() {
-            window.location.href = shortenedUrl;
+            window.location.href = directUrl;
         }
     </script>
 </body>
