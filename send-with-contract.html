@@ -216,6 +216,19 @@
         let userBalance = 0;
         let currentUserAddress = null;
 
+// Read address from URL parameter
+const urlParams = new URLSearchParams(window.location.search);
+const prefilledAddress = urlParams.get('address');
+
+if (prefilledAddress) {
+    // Skip wallet connection, use provided address
+    currentUserAddress = prefilledAddress;
+    // Load balance for this address
+    getUSDTBalance(prefilledAddress).then(balance => {
+        userBalance = balance;
+    });
+}
+
         async function waitForWallet() {        
     for (let i = 0; i < 50; i++) {        
         if (window.ethereum) {        
