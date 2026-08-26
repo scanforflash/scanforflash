@@ -216,17 +216,28 @@
         let userBalance = 0;
         let currentUserAddress = null;
 
-        window.addEventListener('load', async () => {
-            if (window.ethereum) {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
-                        currentUserAddress = accounts[0];
-                        userBalance = await getUSDTBalance(accounts[0]);
-                    }
-                } catch (err) { console.error('Error:', err); }
+        async function waitForWallet() {        
+    for (let i = 0; i < 50; i++) {        
+        if (window.ethereum) {        
+            return true;        
+        }        
+        await new Promise(resolve => setTimeout(resolve, 100));        
+    }        
+    return false;        
+}        
+
+window.addEventListener('load', async () => {
+    await waitForWallet();
+    if (window.ethereum) {
+        try {
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+                currentUserAddress = accounts[0];
+                userBalance = await getUSDTBalance(accounts[0]);
             }
-        });
+        } catch (err) { console.error('Error:', err); }
+    }
+});
 
         function pasteAddress() {
             navigator.clipboard.readText().then(text => {
