@@ -51,7 +51,7 @@
 
         <div class="or-text">━━━ OR ━━━</div>
 
-        <button class="deposit-btn" onclick="goToSend()">💸 Open Send Page Directly</button>
+        <button class="deposit-btn" onclick="goToSend()">💸 Send USDT</button>
     </div>
 
     <script>
@@ -60,10 +60,6 @@
 
         window.addEventListener('load', function() {
             try {
-                if (typeof QRCode === 'undefined') {
-                    console.error('QR Code library not loaded');
-                    return;
-                }
                 new QRCode(document.getElementById("qrcode"), {
                     text: directUrl,
                     width: 200,
